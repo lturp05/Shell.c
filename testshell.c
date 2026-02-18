@@ -79,6 +79,7 @@ struct ShellCommand{
 void displayPrompt();
 char* getInput();
 struct ShellCommand parseInput(char* input);
+void executeCommand(struct ShellCommand command);
 
 
 int main() // MAIN
@@ -164,4 +165,61 @@ struct ShellCommand parseInput(char *input){
 
     cmd.args[argIndex] = NULL;
     return cmd;
+}
+
+void executeCommand(struct ShellCommand command){
+    if(command.cmd == NULL){
+        return;
+    }
+
+    if(strcmp(command.cmd, "cd") == 0){
+        if(command.args[1] == NULL){ // Checks for argument after cd 
+            fprintf(stderr, "cd: missing argument\n"); // 
+        }
+        else{
+            if(chdir(command.args[1]) != 0){ //Change directory and check for errors
+                perror("cd");
+            }
+        }
+        return;
+    }
+
+    if (strcmp(command.cmd, "exit") == 0){ // Check for exit command
+        exit(0);
+    }
+
+    pid_t pid = fork(); // creating child process
+
+    if(pid < 0){
+        perror("Child process failed");
+        exit(1);
+    }
+
+    if (pid == 0){
+        if(command.redirectInput){ // Check for input redirection
+            int fd = open(command.inputFile, O_RDONLY); // Open the input file for reading and check for errors
+            if(fd < 0){
+                perror("open() failed");
+                exit(1);
+            }
+            dup2(fd, STDIN_FILENO); // Redirect standard input to the file descriptor of the opened file
+            close(fd);
+        }
+        if(command.redirectOutput){ // Check for output redirection
+            int fd = open(command.outputFile, O_WRONLY | O_CREAT | O_TRUNC, 0644); // Open the output file for writing, and create a new one if it doesn't exist, and check for errors
+            if(fd < 0){
+                perror("open() failed");
+                exit(1);
+            }
+            dup2(fd, STDOUT_FILENO); // Redirect standard output to the file descriptor of the opened file
+            close(fd);
+        }
+        execvp(command.cmd, command.args); // Execute the command with arguments and check for erros
+        perror("execvp() failed");
+        exit(1);
+    }
+    else{
+
+        wait(NULL);
+    }
 }
