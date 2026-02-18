@@ -95,15 +95,28 @@ int main() // MAIN
 }
 
 void displayPrompt(){
-    char cwd[1024];
+    char cwd[1024]; 
 
-    if (getcwd(cwd, sizeof(cwd)) != NULL) {
-        printf("%s$ ", cwd);
+    if (getcwd(cwd, sizeof(cwd)) != NULL) { // Get the current working directory
+        printf("%s$ ", cwd); // Display the current working directory followed by a $ symbol
     } else {
-        perror("getcwd() error");
+        perror("getcwd() error"); 
     }
 }
 
 char* getInput(){
-    
+    char *buffer = malloc(MAX_INPUT_SIZE); // Allocate memory for the input buffer
+    if(!buffer){ // Checks for successful memory allocation
+        perror("malloc");
+        exit(1);
+    }
+
+    if(fgets(buffer, MAX_INPUT_SIZE, stdin) == NULL){ // Read the imput from the user and check for errors
+        printf("\n"); 
+        free(buffer); // Free the allocated memory before exiting
+        exit(0);
+    }
+
+    buffer[strcspn(buffer, "\n")] = '\0'; // Remove the newline from the end of input
+    return buffer; 
 }
