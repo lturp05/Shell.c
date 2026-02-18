@@ -56,7 +56,19 @@
         That is, there symbols: > and <. 
         Pipe isn't required but could be a nice addition.
 */
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+#include <string.h>
+#include <fcntl.h>
+#include <fcntl.h>
 
+#define MAX_INPUT_SIZE 1024
+#define MAX_ARGS 64
+
+void displayPrompt();
+char* getInput();
 
 int main() // MAIN
 {
@@ -82,3 +94,16 @@ int main() // MAIN
 	exit(0);
 }
 
+void displayPrompt(){
+    char cwd[1024];
+
+    if (getcwd(cwd, sizeof(cwd)) != NULL) {
+        printf("%s$ ", cwd);
+    } else {
+        perror("getcwd() error");
+    }
+}
+
+char* getInput(){
+    
+}
