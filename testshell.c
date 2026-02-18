@@ -67,8 +67,19 @@
 #define MAX_INPUT_SIZE 1024
 #define MAX_ARGS 64
 
+struct ShellCommand{
+    char *cmd; // Command
+    char *args[MAX_ARGS]; // Arguments list
+    char *inputFile; // This is "<" redirection file
+    char *outputFile; // THis is ">" redirection file
+    int redirectInput;
+    int redirectOutput;
+};
+
 void displayPrompt();
 char* getInput();
+struct ShellCommand parseInput(char* input);
+
 
 int main() // MAIN
 {
@@ -100,14 +111,14 @@ void displayPrompt(){
     if (getcwd(cwd, sizeof(cwd)) != NULL) { // Get the current working directory
         printf("%s$ ", cwd); // Display the current working directory followed by a $ symbol
     } else {
-        perror("getcwd() error"); 
+        perror("getcwd() failed"); 
     }
 }
 
 char* getInput(){
     char *buffer = malloc(MAX_INPUT_SIZE); // Allocate memory for the input buffer
     if(!buffer){ // Checks for successful memory allocation
-        perror("malloc");
+        perror("malloc() failed");
         exit(1);
     }
 
@@ -119,4 +130,38 @@ char* getInput(){
 
     buffer[strcspn(buffer, "\n")] = '\0'; // Remove the newline from the end of input
     return buffer; 
+}
+
+struct ShellCommand parseInput(char *input){
+    struct ShellCommand cmd; 
+    memset(&cmd, 0, sizeof(cmd)); // Initialize the ShellCommand struct to zero
+
+    char *token = strtok(input, " "); 
+    int argIndex = 0; 
+
+    while(token != NULL){ // Loop through each token in the input
+        if(strcmp(token, "<") == 0){ // Check for input redirection symbol
+            cmd.redirectInput = 1; 
+            token = strtok(NULL, " "); // Get the next token which should be the input file
+            cmd.inputFile = token; // Store the input file in the ShellCommand struct
+        }
+        else if (strcmp(token, ">") == 0){ // Check for output redirection symbol
+            cmd.redirectOutput = 1;
+            token = strtok(NULL, " ");
+            cmd.outputFile = token;
+        }
+        else{
+            if(cmd.cmd == NULL){ // If the command has not been set yet, set it to the current token
+                cmd.cmd = token;
+            }
+            if(argIndex < MAX_ARGS - 1){ // Check if there is room for more arguments
+                cmd.args[argIndex++] = token;
+            }
+        }
+
+        token = strtok(NULL, " "); // Get the next token for the next iteration of the loop
+    }
+
+    cmd.args[argIndex] = NULL;
+    return cmd;
 }
