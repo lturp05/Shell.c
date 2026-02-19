@@ -71,7 +71,7 @@ char* getInput(){
         exit(1);
     }
 
-    if(fgets(buffer, MAX_INPUT_SIZE, stdin) == NULL){ // Read the imput from the user and check for errors
+    if(fgets(buffer, MAX_INPUT_SIZE, stdin) == NULL){ // Read the input from the user and check for errors
         printf("\n"); 
         free(buffer); // Free the allocated memory before exiting
         exit(0);
