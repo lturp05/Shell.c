@@ -1,7 +1,11 @@
 
-A Shell program written in C // Luke Turpin and Christopher Sandoval
+Luke Turpin and Christopher Sandoval
 
-This program is mimicing how the terminal shell work but making it ourselfs. 
+A program written in C, that takes system calls and correctly functions as a Bash Shell.
+
+Christopher wrote the executeCommand function and co-wrote the parseInput function.
+
+Luke wrote the displayPrompt, the getInput, and co-wrote the parseInput function.
 
 To clone execute like this: git clone https://github.com/lturp05/Shell.c.git
 
